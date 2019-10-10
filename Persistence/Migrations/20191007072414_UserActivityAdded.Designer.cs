@@ -9,8 +9,8 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20190926131735_AddedIdentity2")]
-    partial class AddedIdentity2
+    [Migration("20191007072414_UserActivityAdded")]
+    partial class UserActivityAdded
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -90,6 +90,23 @@ namespace Persistence.Migrations
                         .HasName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
+                });
+
+            modelBuilder.Entity("Domain.UserActivity", b =>
+                {
+                    b.Property<string>("AppUserId");
+
+                    b.Property<Guid>("ActivityId");
+
+                    b.Property<DateTime>("DateJoined");
+
+                    b.Property<bool>("IsHost");
+
+                    b.HasKey("AppUserId", "ActivityId");
+
+                    b.HasIndex("ActivityId");
+
+                    b.ToTable("UserActivities");
                 });
 
             modelBuilder.Entity("Domain.Value", b =>
@@ -226,6 +243,19 @@ namespace Persistence.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("Domain.UserActivity", b =>
+                {
+                    b.HasOne("Domain.Activity", "Activity")
+                        .WithMany("UserActivities")
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Domain.AppUser", "AppUser")
+                        .WithMany("UserActivities")
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
